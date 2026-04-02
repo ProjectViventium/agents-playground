@@ -3,14 +3,6 @@
 import { AttributeItem } from "@/lib/types";
 import { getCookie, setCookie } from "cookies-next";
 import jsYaml from "js-yaml";
-import {
-  TokenSourceConfigurable,
-  TokenSourceFetchOptions,
-  TokenSourceFixed,
-  TokenSourceLiteral,
-} from "livekit-client";
-import { RoomAgentDispatch } from "livekit-server-sdk";
-import { PartialMessage } from "@bufbuild/protobuf";
 import { useRouter } from "next/navigation";
 import React, {
   createContext,
@@ -27,15 +19,12 @@ export type AppConfig = {
   video_fit?: "cover" | "contain";
   settings: UserSettings;
   show_qr?: boolean;
-  // configure it to support a specific agent
-  agent_dispatch?: PartialMessage<RoomAgentDispatch>;
 };
 
 export type UserSettings = {
   editable: boolean;
   theme_color: string;
   chat: boolean;
-  agent?: string;
   inputs: {
     camera: boolean;
     screen: boolean;
@@ -45,7 +34,24 @@ export type UserSettings = {
     audio: boolean;
     video: boolean;
   };
+  ws_url: string;
+  token: string;
+  room_name: string;
+  participant_id: string;
+  participant_name: string;
+  agent_name?: string;
+  metadata?: string;
+  attributes?: AttributeItem[];
 };
+
+const envFlagEnabled = (value: string | undefined) => {
+  const v = (value || "").trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes" || v === "on";
+};
+
+const viventiumDisableVideo = envFlagEnabled(
+  process.env.NEXT_PUBLIC_VIVENTIUM_DISABLE_VIDEO,
+);
 
 // Fallback if NEXT_PUBLIC_APP_CONFIG is not set
 const defaultConfig: AppConfig = {
@@ -57,14 +63,24 @@ const defaultConfig: AppConfig = {
     theme_color: "cyan",
     chat: true,
     inputs: {
-      camera: true,
-      screen: true,
+      // Viventium currently does not process video input; keep disabled by default.
+      camera: false,
+      screen: false,
       mic: true,
     },
     outputs: {
       audio: true,
-      video: true,
+      // Viventium currently does not publish agent video tracks; hide video UI by default.
+      video: false,
     },
+    ws_url: "",
+    token: "",
+    room_name: process.env.NEXT_PUBLIC_LIVEKIT_ROOM || "",
+    participant_id: "",
+    participant_name: "Playground User",
+    agent_name: process.env.NEXT_PUBLIC_LIVEKIT_AGENT_NAME || "viventium",
+    metadata: "",
+    attributes: [],
   },
   show_qr: false,
 };
@@ -120,8 +136,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     return {
       editable: true,
       chat: params.get("chat") === "1",
-      theme_color: params.get("theme_color") || "cyan",
-      agent: params.get("agent") || undefined,
+      theme_color: params.get("theme_color"),
       inputs: {
         camera: params.get("cam") === "1",
         screen: params.get("screen") === "1",
@@ -132,6 +147,11 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
         video: params.get("video") === "1",
         chat: params.get("chat") === "1",
       },
+      ws_url: "",
+      token: "",
+      room_name: "",
+      participant_id: "",
+      participant_name: "",
     } as UserSettings;
   }, [appConfig]);
 
@@ -157,8 +177,8 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
         audio: boolToString(us.outputs.audio),
         chat: boolToString(us.chat),
         theme_color: us.theme_color || "cyan",
-        ...(us.agent ? { agent: us.agent } : {}),
       });
+      // Note: We don't set ws_url and token to the URL on purpose
       router.replace("/#" + obj.toString());
     },
     [router],
@@ -194,6 +214,25 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     if (!newCookieSettings) {
       return appConfigFromSettings;
     }
+
+    // Viventium: enforce "no video" mode when configured (prevents camera/screen auto-enable).
+    if (viventiumDisableVideo) {
+      newCookieSettings.inputs.camera = false;
+      newCookieSettings.inputs.screen = false;
+      newCookieSettings.outputs.video = false;
+    }
+
+    // If env defaults are set, prefer them when cookie values are empty.
+    // This prevents stale cookies from forcing empty agent_name / room_name.
+    const envAgentName = process.env.NEXT_PUBLIC_LIVEKIT_AGENT_NAME;
+    if (!newCookieSettings.agent_name) {
+      newCookieSettings.agent_name = envAgentName || "viventium";
+    }
+    const envRoomName = process.env.NEXT_PUBLIC_LIVEKIT_ROOM;
+    if (envRoomName && !newCookieSettings.room_name) {
+      newCookieSettings.room_name = envRoomName;
+    }
+
     appConfigFromSettings.settings = newCookieSettings;
     return { ...appConfigFromSettings };
   }, [
@@ -204,8 +243,6 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     setCookieSettings,
     setUrlSettings,
   ]);
-
-  const [config, _setConfig] = useState<AppConfig>(defaultConfig);
 
   const setUserSettings = useCallback(
     (settings: UserSettings) => {
@@ -225,6 +262,8 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [appConfig, setCookieSettings, setUrlSettings],
   );
+
+  const [config, _setConfig] = useState<AppConfig>(defaultConfig);
 
   // Run things client side because we use cookies
   useEffect(() => {

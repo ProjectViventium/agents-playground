@@ -1,14 +1,24 @@
+import {
+  LiveKitRoom,
+  RoomAudioRenderer,
+  StartAudio,
+} from "@livekit/components-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Inter } from "next/font/google";
 import Head from "next/head";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { PlaygroundConnect } from "@/components/PlaygroundConnect";
 import Playground from "@/components/playground/Playground";
 import { PlaygroundToast, ToastType } from "@/components/toast/PlaygroundToast";
 import { ConfigProvider, useConfig } from "@/hooks/useConfig";
+import {
+  ConnectionMode,
+  ConnectionProvider,
+  useConnection,
+} from "@/hooks/useConnection";
+import { useMemo } from "react";
 import { ToastProvider, useToast } from "@/components/toast/ToasterProvider";
-import { TokenSourceConfigurable, TokenSource } from "livekit-client";
 
 const themeColors = [
   "cyan",
@@ -27,24 +37,37 @@ export default function Home() {
   return (
     <ToastProvider>
       <ConfigProvider>
-        <HomeInner />
+        <ConnectionProvider>
+          <HomeInner />
+        </ConnectionProvider>
       </ConfigProvider>
     </ToastProvider>
   );
 }
 
 export function HomeInner() {
+  const { shouldConnect, wsUrl, token, mode, connect, disconnect } =
+    useConnection();
+
   const { config } = useConfig();
   const { toastMessage, setToastMessage } = useToast();
-  const [autoConnect, setAutoConnect] = useState(false);
-  const [tokenSource, setTokenSource] = useState<
-    TokenSourceConfigurable | undefined
-  >(() => {
+
+  const handleConnect = useCallback(
+    async (c: boolean, mode: ConnectionMode) => {
+      c ? connect(mode) : disconnect();
+    },
+    [connect, disconnect],
+  );
+
+  const showPG = useMemo(() => {
     if (process.env.NEXT_PUBLIC_LIVEKIT_URL) {
-      return TokenSource.endpoint("/api/token");
+      return true;
     }
-    return undefined;
-  });
+    if (wsUrl) {
+      return true;
+    }
+    return false;
+  }, [wsUrl]);
 
   return (
     <>
@@ -78,25 +101,48 @@ export function HomeInner() {
             </motion.div>
           )}
         </AnimatePresence>
-        {tokenSource ? (
-          <Playground
-            themeColors={themeColors}
-            tokenSource={tokenSource}
-            autoConnect={autoConnect}
-            agentOptions={
-              config.settings.agent
-                ? { agentName: config.settings.agent }
-                : config.agent_dispatch
-            }
-          />
+        {showPG ? (
+          <LiveKitRoom
+            className="flex flex-col h-full w-full"
+            serverUrl={wsUrl}
+            token={token}
+            connect={shouldConnect}
+            onError={(e) => {
+              const errorMsg = e.message || "Connection error";
+              console.error("LiveKit connection error:", e);
+              console.error("Error details:", {
+                message: e.message,
+                code: (e as any).code,
+                reason: (e as any).reason,
+                wsUrl,
+                hasToken: !!token,
+              });
+              setToastMessage({ 
+                message: `${errorMsg}. Check browser console and TROUBLESHOOTING.md for details.`, 
+                type: "error" 
+              });
+            }}
+            options={{
+              // Ensure proper WebRTC configuration for localhost
+              adaptiveStream: true,
+              dynacast: true,
+            }}
+          >
+            <Playground
+              themeColors={themeColors}
+              onConnect={(c) => {
+                const m = process.env.NEXT_PUBLIC_LIVEKIT_URL ? "env" : mode;
+                handleConnect(c, m);
+              }}
+            />
+            <RoomAudioRenderer />
+            <StartAudio label="Click to enable audio playback" />
+          </LiveKitRoom>
         ) : (
           <PlaygroundConnect
             accentColor={themeColors[0]}
-            onConnectClicked={(tokenSource, shouldAutoConnect) => {
-              setTokenSource(tokenSource);
-              if (shouldAutoConnect) {
-                setAutoConnect(true);
-              }
+            onConnectClicked={(mode) => {
+              handleConnect(true, mode);
             }}
           />
         )}

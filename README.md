@@ -1,85 +1,161 @@
-<!--BEGIN_BANNER_IMAGE-->
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/.github/banner_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/.github/banner_light.png">
-  <img style="width:100%;" alt="The LiveKit icon, the name of the repository and some sample code in the background." src="https://raw.githubusercontent.com/livekit/agent-playground/main/.github/banner_light.png">
-</picture>
-
-<!--END_BANNER_IMAGE-->
-
 # LiveKit Agents Playground
 
-<!--BEGIN_DESCRIPTION-->
-The Agent Playground is designed for quickly prototyping with server side agents built with [LiveKit Agents Framework](https://github.com/livekit/agents). Easily tap into LiveKit WebRTC sessions and process or generate audio, video, and data streams.
-  The playground includes components to fully interact with any LiveKit agent, through video, audio and chat.
-<!--END_DESCRIPTION-->
-
-## Docs and references
-
-Docs for how to get started with LiveKit agents at [https://docs.livekit.io/agents](https://docs.livekit.io/agents)
-
-The repo containing the (server side) agent implementations (including example agents): [https://github.com/livekit/agents](https://github.com/livekit/agents)
-
-## Try out a live version
-
-You can try out a demo of the playground with [KITT](https://kitt.livekit.io) or the [hosted playground](https://agents-playground.livekit.io) for your own agents.
-
-## Setting up the playground locally
-
-1. Install dependencies
-
-```bash
-pnpm install
-```
-
-2. Copy and rename the `.env.example` file to `.env.local` and fill in the necessary environment variables.
-
-```
-LIVEKIT_API_KEY=<your API KEY>
-LIVEKIT_API_SECRET=<Your API Secret>
-NEXT_PUBLIC_LIVEKIT_URL=wss://<Your Cloud URL>
-```
-
-3. Run the development server:
-
-```bash
-pnpm run dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-5. If you haven't done so yet, start your agent (with the same project variables as in step 2.)
-6. Connect to a room and see your agent connecting to the playground
+The LiveKit Agents Playground is a web-based frontend interface for interacting with LiveKit agents. This interface connects to the LiveKit server running via `start_all.sh` and provides a visual interface to test and interact with your Viventium agent.
 
 ## Features
 
-- Render video, audio and chat from your agent
-- Send video, audio, or text to your agent
-- Configurable settings panel to work with your agent
+- **Audio & Chat**: Speak/type to the agent and receive responses
+- **Agent Configuration**: Configure room settings, participant info, and agent dispatch
+- **Real-time Interaction**: Full WebRTC support for low-latency communication
 
-## Notes
+### Viventium Defaults (Important)
 
-- This playground is currently work in progress. There are known layout/responsive bugs and some features are under tested.
-- The playground was tested against the kitt example in `https://github.com/livekit/agents`.
-- Feel free to ask questions, request features in our [community slack](https://livekit.io/join-slack).
+Viventium’s current agent experience is **audio + chat** (no camera/video processing). This interface is configured to:
 
-## Known issues
+- Disable **camera** and **screen share** by default
+- Hide **agent video** UI by default
+- Default to **explicit dispatch** agent name: `viventium`
 
-- Layout can break on smaller screens.
-- Mobile device sizes not supported currently
+## Prerequisites
 
-<!--BEGIN_REPO_NAV-->
-<br/><table>
-<thead><tr><th colspan="2">LiveKit Ecosystem</th></tr></thead>
-<tbody>
-<tr><td>Agents SDKs</td><td><a href="https://github.com/livekit/agents">Python</a> · <a href="https://github.com/livekit/agents-js">Node.js</a></td></tr><tr></tr>
-<tr><td>LiveKit SDKs</td><td><a href="https://github.com/livekit/client-sdk-js">Browser</a> · <a href="https://github.com/livekit/client-sdk-swift">Swift</a> · <a href="https://github.com/livekit/client-sdk-android">Android</a> · <a href="https://github.com/livekit/client-sdk-flutter">Flutter</a> · <a href="https://github.com/livekit/client-sdk-react-native">React Native</a> · <a href="https://github.com/livekit/rust-sdks">Rust</a> · <a href="https://github.com/livekit/node-sdks">Node.js</a> · <a href="https://github.com/livekit/python-sdks">Python</a> · <a href="https://github.com/livekit/client-sdk-unity">Unity</a> · <a href="https://github.com/livekit/client-sdk-unity-web">Unity (WebGL)</a> · <a href="https://github.com/livekit/client-sdk-esp32">ESP32</a> · <a href="https://github.com/livekit/client-sdk-cpp">C++</a></td></tr><tr></tr>
-<tr><td>Starter Apps</td><td><a href="https://github.com/livekit-examples/agent-starter-python">Python Agent</a> · <a href="https://github.com/livekit-examples/agent-starter-node">TypeScript Agent</a> · <a href="https://github.com/livekit-examples/agent-starter-react">React App</a> · <a href="https://github.com/livekit-examples/agent-starter-swift">SwiftUI App</a> · <a href="https://github.com/livekit-examples/agent-starter-android">Android App</a> · <a href="https://github.com/livekit-examples/agent-starter-flutter">Flutter App</a> · <a href="https://github.com/livekit-examples/agent-starter-react-native">React Native App</a> · <a href="https://github.com/livekit-examples/agent-starter-embed">Web Embed</a></td></tr><tr></tr>
-<tr><td>UI Components</td><td><a href="https://github.com/livekit/components-js">React</a> · <a href="https://github.com/livekit/components-android">Android Compose</a> · <a href="https://github.com/livekit/components-swift">SwiftUI</a> · <a href="https://github.com/livekit/components-flutter">Flutter</a></td></tr><tr></tr>
-<tr><td>Server APIs</td><td><a href="https://github.com/livekit/node-sdks">Node.js</a> · <a href="https://github.com/livekit/server-sdk-go">Golang</a> · <a href="https://github.com/livekit/server-sdk-ruby">Ruby</a> · <a href="https://github.com/livekit/server-sdk-kotlin">Java/Kotlin</a> · <a href="https://github.com/livekit/python-sdks">Python</a> · <a href="https://github.com/livekit/rust-sdks">Rust</a> · <a href="https://github.com/agence104/livekit-server-sdk-php">PHP (community)</a> · <a href="https://github.com/pabloFuente/livekit-server-sdk-dotnet">.NET (community)</a></td></tr><tr></tr>
-<tr><td>Resources</td><td><a href="https://docs.livekit.io">Docs</a> · <a href="https://docs.livekit.io/mcp">Docs MCP Server</a> · <a href="https://github.com/livekit/livekit-cli">CLI</a> · <a href="https://cloud.livekit.io">LiveKit Cloud</a></td></tr><tr></tr>
-<tr><td>LiveKit Server OSS</td><td><a href="https://github.com/livekit/livekit">LiveKit server</a> · <a href="https://github.com/livekit/egress">Egress</a> · <a href="https://github.com/livekit/ingress">Ingress</a> · <a href="https://github.com/livekit/sip">SIP</a></td></tr><tr></tr>
-<tr><td>Community</td><td><a href="https://community.livekit.io">Developer Community</a> · <a href="https://livekit.io/join-slack">Slack</a> · <a href="https://x.com/livekit">X</a> · <a href="https://www.youtube.com/@livekit_io">YouTube</a></td></tr>
-</tbody>
-</table>
-<!--END_REPO_NAV-->
+- Node.js (v18 or higher)
+- pnpm package manager
+- LiveKit server running (via `start_all.sh`)
+
+## Quick Start
+
+1. **Install dependencies** (first time only):
+```bash
+   cd interfaces/livekit-playground
+pnpm install
+```
+
+2. **Configure environment** (if not already done):
+   ```bash
+   cp .env.local.example .env.local
+   # Edit .env.local if needed (defaults work with start_all.sh dev mode)
+   ```
+
+3. **Start the playground**:
+   ```bash
+   ./start_playground.sh
+   ```
+
+4. **Open in browser**:
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Configuration
+
+The playground uses environment variables from `.env.local`:
+
+- `LIVEKIT_API_KEY`: LiveKit API key (default: `devkey` for dev mode)
+- `LIVEKIT_API_SECRET`: LiveKit API secret (default: `secret` for dev mode)
+- `NEXT_PUBLIC_LIVEKIT_URL`: LiveKit WebSocket URL (default: `ws://localhost:7880`)
+- `NEXT_PUBLIC_LIVEKIT_AGENT_NAME`: Agent name for explicit dispatch (default: `viventium`)
+- `NEXT_PUBLIC_LIVEKIT_ROOM`: Optional default room name (default: `viventium-playground`)
+- `NEXT_PUBLIC_VIVENTIUM_DISABLE_VIDEO`: If enabled (`1/true`), forces camera/screen/video UI off (default: enabled)
+
+These defaults match the dev mode configuration in `start_all.sh`, so no changes are needed if you're using the default setup.
+
+### LiveKit Server (Docker Desktop/macOS)
+
+If you ever see **Runtime ConnectionError**: `"could not establish pc connection"`, your LiveKit server is likely advertising an unreachable **container IP** (e.g. `172.17.x.x`) in ICE candidates.
+
+Fix: run LiveKit with a host-reachable node IP:
+
+- `livekit-server --dev --bind 0.0.0.0 --node-ip 127.0.0.1`
+
+`start_all.sh` now does this automatically via `LIVEKIT_NODE_IP` + `--node-ip`.
+
+## Usage
+
+### Connecting to Your Agent
+
+1. **Ensure services are running**:
+   ```bash
+   # From workspace root
+   ./start_all.sh
+   ```
+
+2. **Start the playground**:
+   ```bash
+   cd interfaces/livekit-playground
+   ./start_playground.sh
+   ```
+
+3. **In the playground UI**:
+   - The playground will automatically use the `NEXT_PUBLIC_LIVEKIT_URL` from your `.env.local`
+   - Click "Connect" to join a room
+   - Your agent (if running) will automatically connect to the same room
+   - Use the settings panel to configure:
+     - Room name (or leave empty for auto-generated)
+     - Participant name/ID
+     - Agent name (if using explicit dispatch)
+     - Custom metadata and attributes
+
+### Agent Dispatch
+
+The playground supports two dispatch modes:
+
+1. **Auto-dispatch** (default): Leave `agent_name` empty in settings. The agent will automatically join any room.
+
+2. **Explicit dispatch**: Set `agent_name` to match your agent's `LIVEKIT_AGENT_NAME` (default: `viventium`). The agent will only join rooms where it's explicitly dispatched.
+
+**Viventium note**: Viventium typically runs in **explicit dispatch** mode (worker registered with `LIVEKIT_AGENT_NAME=viventium`), so the playground should use `agent_name=viventium`. The `start_playground.sh` script and UI defaults set this for you.
+
+### Testing Your Agent
+
+- **Audio**: Enable microphone to send audio to your agent
+- **Video**: Enable camera to send video to your agent  
+- **Chat**: Type messages in the chat panel to send text to your agent
+- **Settings**: Configure room and participant settings before connecting
+
+## Integration with start_all.sh
+
+The playground is designed to work seamlessly with the services started by `start_all.sh`:
+
+- **LiveKit Server**: Running on port 7880 (Docker container)
+- **Agent**: Running and registered with LiveKit
+- **Credentials**: Uses the same dev mode credentials (`devkey`/`secret`)
+
+## Troubleshooting
+
+### Port Already in Use
+If port 3000 is already in use:
+```bash
+# Find and stop the process
+lsof -ti:3000 | xargs kill -9
+```
+
+### Cannot Connect to LiveKit Server
+- Verify LiveKit is running: `curl http://localhost:7880`
+- Check Docker: `docker ps | grep livekit`
+- Verify credentials match in `.env.local`
+
+### Agent Not Connecting
+- Verify agent is running: Check `start_all.sh` output
+- Check agent logs: `.viventium/logs/agent.log`
+- Verify `LIVEKIT_AGENT_NAME` matches if using explicit dispatch
+- Check LiveKit server logs: `docker logs <container_id>`
+
+## Development
+
+### Project Structure
+
+- `src/pages/`: Next.js pages and API routes
+- `src/components/`: React components for the playground UI
+- `src/hooks/`: React hooks for connection and configuration
+- `src/pages/api/token.ts`: Token generation endpoint (uses LiveKit SDK)
+
+### Building for Production
+
+```bash
+pnpm run build
+pnpm run start
+```
+
+## References
+
+- [LiveKit Agents Documentation](https://docs.livekit.io/agents)
+- [LiveKit Agents Framework](https://github.com/livekit/agents)
+- [Original Playground Repository](https://github.com/livekit/agents-playground)

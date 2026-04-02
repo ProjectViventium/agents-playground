@@ -1,14 +1,21 @@
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatMessageInput } from "@/components/chat/ChatMessageInput";
-import { ReceivedMessage } from "@livekit/components-react";
+import { ChatMessage as ComponentsChatMessage } from "@livekit/components-react";
 import { useEffect, useRef } from "react";
 
 const inputHeight = 48;
 
+export type ChatMessageType = {
+  name: string;
+  message: string;
+  isSelf: boolean;
+  timestamp: number;
+};
+
 type ChatTileProps = {
-  messages: ReceivedMessage[];
+  messages: ChatMessageType[];
   accentColor: string;
-  onSend?: (message: string) => Promise<ReceivedMessage>;
+  onSend?: (message: string) => Promise<ComponentsChatMessage>;
 };
 
 export const ChatTile = ({ messages, accentColor, onSend }: ChatTileProps) => {
@@ -31,15 +38,15 @@ export const ChatTile = ({ messages, accentColor, onSend }: ChatTileProps) => {
         <div className="flex flex-col min-h-full justify-end">
           {messages.map((message, index, allMsg) => {
             const hideName =
-              index >= 1 && allMsg[index - 1].from === message.from;
+              index >= 1 && allMsg[index - 1].name === message.name;
 
             return (
               <ChatMessage
                 key={index}
                 hideName={hideName}
-                name={message.from?.name ?? ""}
+                name={message.name}
                 message={message.message}
-                isSelf={message.from?.isLocal ?? false}
+                isSelf={message.isSelf}
                 accentColor={accentColor}
               />
             );
