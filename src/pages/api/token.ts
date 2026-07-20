@@ -34,7 +34,7 @@ const createToken = (
       agents: [
         new RoomAgentDispatch({
           agentName: agentName,
-          metadata: ''
+          metadata: "",
         }),
       ],
     });

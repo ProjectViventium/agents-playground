@@ -27,6 +27,7 @@ If you use `./start_all.sh`, it now sets `LIVEKIT_NODE_IP=127.0.0.1` and passes 
 **Problem**: Browser blocks WebRTC even if you're not using camera/mic.
 
 **Solution**:
+
 - Open browser settings → Privacy → Site Settings
 - Allow camera and microphone for `localhost:3000`
 - Or use a browser that allows localhost by default (Chrome/Edge)
@@ -38,6 +39,7 @@ If you use `./start_all.sh`, it now sets `LIVEKIT_NODE_IP=127.0.0.1` and passes 
 **Problem**: LiveKit server is not accessible.
 
 **Solution**:
+
 ```bash
 # Check if LiveKit is running
 curl http://localhost:7880
@@ -54,11 +56,13 @@ docker run -d -p 7880:7880 -p 7881:7881 -p 7882:7882/udp \
 **Problem**: WebSocket URL format is incorrect.
 
 **Solution**: Ensure `.env.local` has:
+
 ```
 NEXT_PUBLIC_LIVEKIT_URL=ws://localhost:7880
 ```
 
-**Note**: 
+**Note**:
+
 - Use `ws://` (not `wss://`) for localhost
 - Use `wss://` for production/HTTPS
 
@@ -67,6 +71,7 @@ NEXT_PUBLIC_LIVEKIT_URL=ws://localhost:7880
 **Problem**: Browser blocks WebRTC connections due to security policies.
 
 **Solution**:
+
 - Try a different browser (Chrome, Firefox, Edge)
 - Ensure you're accessing via `http://localhost:3000` (not `127.0.0.1`)
 - Check browser console for CORS errors
@@ -76,6 +81,7 @@ NEXT_PUBLIC_LIVEKIT_URL=ws://localhost:7880
 **Problem**: Firewall blocks WebRTC ports.
 
 **Solution**:
+
 - Ensure ports 7880-7882 are not blocked
 - Check if UDP port 7882 is accessible
 - Try disabling firewall temporarily to test
@@ -85,6 +91,7 @@ NEXT_PUBLIC_LIVEKIT_URL=ws://localhost:7880
 **Problem**: Invalid or expired tokens.
 
 **Solution**:
+
 ```bash
 # Test token generation
 curl -X POST http://localhost:3000/api/token \
@@ -99,6 +106,7 @@ curl -X POST http://localhost:3000/api/token \
 **Problem**: Server not configured for localhost connections.
 
 **Solution**: Ensure LiveKit is started with:
+
 ```bash
 docker run -d -p 7880:7880 -p 7881:7881 -p 7882:7882/udp \
   livekit/livekit-server --dev --bind 0.0.0.0 --node-ip 127.0.0.1
@@ -126,6 +134,7 @@ This guarantees the worker gets a job and joins the room.
 ### 8. Browser Console Debugging
 
 **Steps**:
+
 1. Open browser DevTools (F12)
 2. Go to Console tab
 3. Look for WebRTC/ICE errors
@@ -164,15 +173,18 @@ docker logs $(docker ps -q --filter ancestor=livekit/livekit-server | head -1) |
 ### 10. Common Browser-Specific Issues
 
 **Chrome/Edge**:
+
 - Check `chrome://settings/content/microphone`
 - Check `chrome://settings/content/camera`
 - Try incognito mode (disables extensions)
 
 **Firefox**:
+
 - Check `about:preferences#privacy` → Permissions
 - Check `about:config` → `media.navigator.permission.disabled` (should be false)
 
 **Safari**:
+
 - Safari has stricter WebRTC policies
 - Try Chrome/Firefox instead for development
 
@@ -202,6 +214,7 @@ cd interfaces/livekit-playground
 If "env" mode doesn't work, try manual mode:
 
 1. Generate a token manually:
+
 ```bash
 docker run --rm livekit/livekit-cli token create \
   --dev \
@@ -226,4 +239,3 @@ docker run --rm livekit/livekit-cli token create \
 3. Check playground logs (terminal where you ran `./start_playground.sh`)
 4. Try the LiveKit connection test: https://livekit.io/connection-test
 5. Verify your setup matches the README.md configuration
-

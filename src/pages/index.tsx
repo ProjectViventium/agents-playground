@@ -117,9 +117,9 @@ export function HomeInner() {
                 wsUrl,
                 hasToken: !!token,
               });
-              setToastMessage({ 
-                message: `${errorMsg}. Check browser console and TROUBLESHOOTING.md for details.`, 
-                type: "error" 
+              setToastMessage({
+                message: `${errorMsg}. Check browser console and TROUBLESHOOTING.md for details.`,
+                type: "error",
               });
             }}
             options={{

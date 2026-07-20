@@ -42,11 +42,15 @@ export function TranscriptionTile({
     // Build new Map with all current segments (creates new reference for React)
     const newTranscripts = new Map(transcripts);
     let hasChanges = false;
-    
+
     if (agentAudioTrack) {
       agentMessages.segments.forEach((s) => {
         const existing = newTranscripts.get(s.id);
-        const newMsg = segmentToChatMessage(s, existing, agentAudioTrack.participant);
+        const newMsg = segmentToChatMessage(
+          s,
+          existing,
+          agentAudioTrack.participant,
+        );
         // Only mark as changed if message content differs
         if (!existing || existing.message !== newMsg.message) {
           hasChanges = true;
@@ -57,7 +61,11 @@ export function TranscriptionTile({
 
     localMessages.segments.forEach((s) => {
       const existing = newTranscripts.get(s.id);
-      const newMsg = segmentToChatMessage(s, existing, localParticipant.localParticipant);
+      const newMsg = segmentToChatMessage(
+        s,
+        existing,
+        localParticipant.localParticipant,
+      );
       if (!existing || existing.message !== newMsg.message) {
         hasChanges = true;
       }

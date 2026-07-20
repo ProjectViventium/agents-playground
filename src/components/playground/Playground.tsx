@@ -29,7 +29,7 @@ import {
 import { ConnectionState, LocalParticipant, Track } from "livekit-client";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import tailwindTheme from "../../lib/tailwindTheme.preval";
+import { themeColorsByName } from "@/lib/themeColors";
 import { EditableNameValueRow } from "@/components/config/NameValueRow";
 import { AttributesInspector } from "@/components/config/AttributesInspector";
 import { RpcPanel } from "./RpcPanel";
@@ -161,8 +161,9 @@ export default function Playground({
   useEffect(() => {
     document.body.style.setProperty(
       "--lk-theme-color",
-      // @ts-ignore
-      tailwindTheme.colors[config.settings.theme_color]["500"],
+      themeColorsByName[
+        config.settings.theme_color as keyof typeof themeColorsByName
+      ]["500"],
     );
     document.body.style.setProperty(
       "--lk-drop-shadow",
@@ -206,12 +207,7 @@ export default function Playground({
     }
 
     return visualizerContent;
-  }, [
-    voiceAssistant.audioTrack,
-    config.settings.theme_color,
-    roomState,
-    voiceAssistant.state,
-  ]);
+  }, [voiceAssistant.audioTrack, roomState, voiceAssistant.state]);
 
   const chatTileContent = useMemo(() => {
     if (voiceAssistant.agent) {
@@ -481,9 +477,8 @@ export default function Playground({
       </div>
     );
   }, [
-    config.description,
-    config.settings,
-    config.show_qr,
+    agentAttributes.attributes,
+    config,
     localParticipant,
     name,
     roomState,
@@ -496,8 +491,6 @@ export default function Playground({
     rpcMethod,
     rpcPayload,
     handleRpcCall,
-    showRpc,
-    setShowRpc,
   ]);
 
   let mobileTabs: PlaygroundTab[] = [];
