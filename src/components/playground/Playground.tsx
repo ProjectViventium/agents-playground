@@ -29,7 +29,7 @@ import {
 import { ConnectionState, LocalParticipant, Track } from "livekit-client";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { themeColorsByName } from "@/lib/themeColors";
+import { resolveThemeColorPalette } from "@/lib/themeColors";
 import { EditableNameValueRow } from "@/components/config/NameValueRow";
 import { AttributesInspector } from "@/components/config/AttributesInspector";
 import { RpcPanel } from "./RpcPanel";
@@ -161,9 +161,7 @@ export default function Playground({
   useEffect(() => {
     document.body.style.setProperty(
       "--lk-theme-color",
-      themeColorsByName[
-        config.settings.theme_color as keyof typeof themeColorsByName
-      ]["500"],
+      resolveThemeColorPalette(config.settings.theme_color)["500"],
     );
     document.body.style.setProperty(
       "--lk-drop-shadow",
