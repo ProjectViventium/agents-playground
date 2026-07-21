@@ -32,7 +32,21 @@ executeModule(
   path.dirname(sourcePath),
 );
 
-const { resolveThemeColorPalette, themeColorsByName } = themeModule.exports;
+const {
+  DEFAULT_THEME_COLOR,
+  resolveThemeColorName,
+  resolveThemeColorPalette,
+  themeColorsByName,
+} = themeModule.exports;
+
+test("normalizes an unsupported external theme name to cyan", () => {
+  assert.equal(resolveThemeColorName("not-a-theme"), DEFAULT_THEME_COLOR);
+});
+
+test("preserves supported external theme names", () => {
+  assert.equal(resolveThemeColorName("gray"), "gray");
+  assert.equal(resolveThemeColorName("violet"), "violet");
+});
 
 test("keeps gray compatible with the Tailwind gray palette", () => {
   assert.equal(

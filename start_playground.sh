@@ -27,6 +27,7 @@ BOLD='\033[1m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PLAYGROUND_DIR="$SCRIPT_DIR"
+PNPM_COMMAND=()
 
 # Port
 PLAYGROUND_PORT=3000
@@ -63,6 +64,34 @@ check_dependency() {
     if ! command -v "$1" >/dev/null 2>&1; then
         print_error "Missing required command: $1"
         print_info "Install it with: npm install -g $1"
+        exit 1
+    fi
+}
+
+configure_package_manager() {
+    check_dependency node
+    check_dependency corepack
+
+    local package_manager_spec
+    if ! package_manager_spec=$(node -e '
+        const packageJson = require(process.argv[1]);
+        if (typeof packageJson.packageManager !== "string") process.exit(1);
+        process.stdout.write(packageJson.packageManager);
+    ' "$PLAYGROUND_DIR/package.json"); then
+        print_error "package.json must declare an exact packageManager"
+        exit 1
+    fi
+
+    if [[ ! "$package_manager_spec" =~ ^pnpm@[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        print_error "Unsupported packageManager declaration: $package_manager_spec"
+        print_info "Declare an exact pnpm version such as pnpm@9.15.9"
+        exit 1
+    fi
+
+    PNPM_COMMAND=(corepack "$package_manager_spec")
+    if ! "${PNPM_COMMAND[@]}" --version >/dev/null 2>&1; then
+        print_error "Corepack could not activate $package_manager_spec"
+        print_info "Check the network, run 'corepack prepare $package_manager_spec --activate', and retry"
         exit 1
     fi
 }
@@ -208,15 +237,14 @@ main() {
     echo ""
     echo -e "${BOLD}Configuration:${NC}"
     echo -e "  LiveKit URL:     ${GREEN}${NEXT_PUBLIC_LIVEKIT_URL}${NC}"
-    echo -e "  API Key:          ${GREEN}${LIVEKIT_API_KEY:0:8}...${NC}"
+    echo -e "  API Key:          ${GREEN}Configured${NC}"
     echo -e "  Agent Name:       ${GREEN}${NEXT_PUBLIC_LIVEKIT_AGENT_NAME}${NC}"
     echo -e "  Playground Port:  ${GREEN}${PLAYGROUND_PORT}${NC}"
     echo ""
     
     # Pre-flight checks
     print_step "Running pre-flight checks..."
-    check_dependency pnpm
-    check_dependency node
+    configure_package_manager
     
     # Check if LiveKit server is running
     print_step "Checking LiveKit server connection..."
@@ -234,7 +262,7 @@ main() {
     if [ ! -d "$PLAYGROUND_DIR/node_modules" ]; then
         print_step "Installing dependencies (this may take a moment)..."
         cd "$PLAYGROUND_DIR"
-        pnpm install || {
+        "${PNPM_COMMAND[@]}" install --frozen-lockfile || {
             print_error "Failed to install dependencies"
             exit 1
         }
@@ -266,7 +294,7 @@ main() {
     export NEXT_PUBLIC_VIVENTIUM_DISABLE_VIDEO
     
     # Start the dev server
-    pnpm run dev
+    "${PNPM_COMMAND[@]}" run dev
 }
 
 # Parse arguments
@@ -306,4 +334,3 @@ done
 
 # Run main
 main "$@"
-

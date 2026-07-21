@@ -1,6 +1,7 @@
 "use client";
 
 import { AttributeItem } from "@/lib/types";
+import { resolveThemeColorName } from "@/lib/themeColors";
 import { getCookie, setCookie } from "cookies-next";
 import jsYaml from "js-yaml";
 import { useRouter } from "next/navigation";
@@ -43,6 +44,11 @@ export type UserSettings = {
   metadata?: string;
   attributes?: AttributeItem[];
 };
+
+const normalizeUserSettingsTheme = (settings: UserSettings): UserSettings => ({
+  ...settings,
+  theme_color: resolveThemeColorName(settings.theme_color),
+});
 
 const envFlagEnabled = (value: string | undefined) => {
   const v = (value || "").trim().toLowerCase();
@@ -98,6 +104,9 @@ const useAppConfig = (): AppConfig => {
         if (parsedConfig.settings.editable === undefined) {
           parsedConfig.settings.editable = true;
         }
+        parsedConfig.settings = normalizeUserSettingsTheme(
+          parsedConfig.settings,
+        );
         return parsedConfig;
       } catch (e) {
         console.error("Error parsing app config:", e);
@@ -133,7 +142,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
       return null;
     }
     const params = new URLSearchParams(window.location.hash.replace("#", ""));
-    return {
+    return normalizeUserSettingsTheme({
       editable: true,
       chat: params.get("chat") === "1",
       theme_color: params.get("theme_color"),
@@ -152,7 +161,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
       room_name: "",
       participant_id: "",
       participant_name: "",
-    } as UserSettings;
+    } as UserSettings);
   }, [appConfig]);
 
   const getSettingsFromCookies = useCallback(async () => {
@@ -164,7 +173,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     if (!jsonSettings) {
       return null;
     }
-    return JSON.parse(jsonSettings) as UserSettings;
+    return normalizeUserSettingsTheme(JSON.parse(jsonSettings) as UserSettings);
   }, [appConfig]);
 
   const setUrlSettings = useCallback(
@@ -176,7 +185,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
         video: boolToString(us.outputs.video),
         audio: boolToString(us.outputs.audio),
         chat: boolToString(us.chat),
-        theme_color: us.theme_color || "cyan",
+        theme_color: resolveThemeColorName(us.theme_color),
       });
       // Note: We don't set ws_url and token to the URL on purpose
       router.replace("/#" + obj.toString());
@@ -185,7 +194,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const setCookieSettings = useCallback((us: UserSettings) => {
-    const json = JSON.stringify(us);
+    const json = JSON.stringify(normalizeUserSettingsTheme(us));
     setCookie("lk_settings", json);
   }, []);
 
@@ -246,17 +255,18 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setUserSettings = useCallback(
     (settings: UserSettings) => {
+      const normalizedSettings = normalizeUserSettingsTheme(settings);
       const appConfigFromSettings = appConfig;
       if (appConfigFromSettings.settings.editable === false) {
-        setLocalColorOverride(settings.theme_color);
+        setLocalColorOverride(normalizedSettings.theme_color);
         return;
       }
-      setUrlSettings(settings);
-      setCookieSettings(settings);
+      setUrlSettings(normalizedSettings);
+      setCookieSettings(normalizedSettings);
       _setConfig((prev) => {
         return {
           ...prev,
-          settings: settings,
+          settings: normalizedSettings,
         };
       });
     },

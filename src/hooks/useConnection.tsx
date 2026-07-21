@@ -5,6 +5,7 @@ import React, { createContext, useState } from "react";
 import { useCallback } from "react";
 import { useConfig } from "./useConfig";
 import { useToast } from "@/components/toast/ToasterProvider";
+import { parseTokenApiResponse } from "@/lib/tokenResponse";
 
 export type ConnectionMode = "cloud" | "manual" | "env";
 
@@ -87,14 +88,26 @@ export const ConnectionProvider = ({
           );
           body.attributes = attributes;
         }
-        const { accessToken } = await fetch(`/api/token`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }).then((res) => res.json());
-        token = accessToken;
+        try {
+          const response = await fetch(`/api/token`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+          });
+          const { accessToken } = await parseTokenApiResponse(response);
+          token = accessToken;
+        } catch (error) {
+          setToastMessage({
+            type: "error",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Unable to connect to voice right now. Check setup and try again.",
+          });
+          return;
+        }
       } else {
         token = config.settings.token;
         url = config.settings.ws_url;

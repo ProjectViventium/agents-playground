@@ -17,12 +17,13 @@ export type ThemeColorName = keyof typeof themeColorsByName;
 
 export const DEFAULT_THEME_COLOR: ThemeColorName = "cyan";
 
-export function resolveThemeColorPalette(requestedTheme: unknown) {
-  const themeName: ThemeColorName =
-    typeof requestedTheme === "string" &&
+export function resolveThemeColorName(requestedTheme: unknown): ThemeColorName {
+  return typeof requestedTheme === "string" &&
     Object.prototype.hasOwnProperty.call(themeColorsByName, requestedTheme)
-      ? (requestedTheme as ThemeColorName)
-      : DEFAULT_THEME_COLOR;
+    ? (requestedTheme as ThemeColorName)
+    : DEFAULT_THEME_COLOR;
+}
 
-  return themeColorsByName[themeName];
+export function resolveThemeColorPalette(requestedTheme: unknown) {
+  return themeColorsByName[resolveThemeColorName(requestedTheme)];
 }
