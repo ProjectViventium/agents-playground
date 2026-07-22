@@ -25,18 +25,21 @@ Viventium’s current agent experience is **audio + chat** (no camera/video proc
 ## Quick Start
 
 1. **Install dependencies** (first time only):
+
 ```bash
    cd interfaces/livekit-playground
 pnpm install
 ```
 
 2. **Configure environment** (if not already done):
+
    ```bash
    cp .env.local.example .env.local
    # Edit .env.local if needed (defaults work with start_all.sh dev mode)
    ```
 
 3. **Start the playground**:
+
    ```bash
    ./start_playground.sh
    ```
@@ -72,12 +75,14 @@ Fix: run LiveKit with a host-reachable node IP:
 ### Connecting to Your Agent
 
 1. **Ensure services are running**:
+
    ```bash
    # From workspace root
    ./start_all.sh
    ```
 
 2. **Start the playground**:
+
    ```bash
    cd interfaces/livekit-playground
    ./start_playground.sh
@@ -106,7 +111,7 @@ The playground supports two dispatch modes:
 ### Testing Your Agent
 
 - **Audio**: Enable microphone to send audio to your agent
-- **Video**: Enable camera to send video to your agent  
+- **Video**: Enable camera to send video to your agent
 - **Chat**: Type messages in the chat panel to send text to your agent
 - **Settings**: Configure room and participant settings before connecting
 
@@ -121,18 +126,22 @@ The playground is designed to work seamlessly with the services started by `star
 ## Troubleshooting
 
 ### Port Already in Use
+
 If port 3000 is already in use:
+
 ```bash
 # Find and stop the process
 lsof -ti:3000 | xargs kill -9
 ```
 
 ### Cannot Connect to LiveKit Server
+
 - Verify LiveKit is running: `curl http://localhost:7880`
 - Check Docker: `docker ps | grep livekit`
 - Verify credentials match in `.env.local`
 
 ### Agent Not Connecting
+
 - Verify agent is running: Check `start_all.sh` output
 - Check agent logs: `.viventium/logs/agent.log`
 - Verify `LIVEKIT_AGENT_NAME` matches if using explicit dispatch

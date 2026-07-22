@@ -5,6 +5,10 @@ import { AccessToken, AgentDispatchClient } from "livekit-server-sdk";
 import { RoomAgentDispatch, RoomConfiguration } from "@livekit/protocol";
 import type { AccessTokenOptions, VideoGrant } from "livekit-server-sdk";
 import { TokenResult } from "../../lib/types";
+import {
+  LIVEKIT_SETUP_REQUIRED_STATUS,
+  createLiveKitSetupRequiredPayload,
+} from "@/lib/tokenResponse";
 
 const apiKey = process.env.LIVEKIT_API_KEY;
 const apiSecret = process.env.LIVEKIT_API_SECRET;
@@ -34,7 +38,7 @@ const createToken = (
       agents: [
         new RoomAgentDispatch({
           agentName: agentName,
-          metadata: ''
+          metadata: "",
         }),
       ],
     });
@@ -53,8 +57,9 @@ export default async function handleToken(
       return;
     }
     if (!apiKey || !apiSecret) {
-      res.statusMessage = "Environment variables aren't set up correctly";
-      res.status(500).end();
+      res
+        .status(LIVEKIT_SETUP_REQUIRED_STATUS)
+        .json(createLiveKitSetupRequiredPayload());
       return;
     }
 

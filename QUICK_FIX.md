@@ -23,6 +23,7 @@ If you use `./start_all.sh`, it now applies this automatically via `LIVEKIT_NODE
 **The Issue**: Browser is blocking WebRTC even though you're not using camera/mic.
 
 **The Fix**:
+
 1. Open browser DevTools (F12)
 2. Go to Console tab
 3. Look for permission errors
@@ -32,6 +33,7 @@ If you use `./start_all.sh`, it now applies this automatically via `LIVEKIT_NODE
 ## Alternative: Try Different Browser
 
 Some browsers handle localhost WebRTC better:
+
 - **Chrome/Edge**: Usually works best
 - **Firefox**: May need additional configuration
 - **Safari**: Often has issues with WebRTC
@@ -39,6 +41,7 @@ Some browsers handle localhost WebRTC better:
 ## Check Browser Console
 
 Open DevTools (F12) → Console tab and look for:
+
 - `Permission denied` errors
 - `ICE connection failed` errors
 - `WebSocket connection failed` errors
@@ -61,6 +64,7 @@ docker logs $(docker ps -q --filter ancestor=livekit/livekit-server | head -1) |
 If "env" mode doesn't work:
 
 1. Generate token:
+
 ```bash
 docker run --rm livekit/livekit-cli token create \
   --dev \
@@ -87,4 +91,3 @@ If the playground connects but shows **Agent name: None** / **No agent connected
 ## Still Not Working?
 
 See `TROUBLESHOOTING.md` for comprehensive debugging steps.
-
