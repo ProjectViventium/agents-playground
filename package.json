@@ -36,7 +36,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9.0.0",
     "eslint-config-next": "15.5.20",
-    "postcss": "^8.5.20",
+    "postcss": "^8.5.23",
     "prettier": "^3.4.2",
     "tailwindcss": "^3.4.18",
     "typescript": "^5.7.2"
@@ -52,7 +52,7 @@
       "minimatch@>=9 <10": "9.0.7",
       "picomatch@<3": "2.3.2",
       "picomatch@>=4 <5": "4.0.4",
-      "postcss": "8.5.20"
+      "postcss": "8.5.23"
     }
   }
 }
